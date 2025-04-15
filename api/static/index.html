@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KOL 數據比較分析</title>
+  <!-- Chart.js 與額外插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+:root {
+  --bg-primary: #0A0F1C;
+  --bg-secondary: #151C2C;
+  --accent-primary: #00A3FF;
+  --accent-secondary: #0066CC;
+  --text-primary: #efe9ee;
+  --text-secondary: #8B9AB0;
+  --card-bg: rgba(26, 32, 44, 0.95);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --success: #00C896;
+  --warning: #FFB800;
+  --danger: #FF4B4B;
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  min-height: 100vh;
+  background-attachment: fixed;
+  color: var(--text-primary);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+}
+
+.creator-selector {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.creator-selector:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(0, 163, 255, 0.1);
+}
+
+/* 保持你原有的 root 和其他樣式不變，在 select 相關樣式處進行修改 */
+
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-secondary);  /* 改用深色背景 */
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  font-size: 16px;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  -webkit-appearance: none;  /* 移除預設樣式 */
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* 新增選項樣式 */
+select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 12px;
+  border: none;
+}
+
+/* 選項懸浮和選中狀態 */
+select option:hover,
+select option:checked,
+select option:focus {
+  background: var(--accent-primary);
+  color: white;
+}
+
+/* 選擇器懸浮狀態 */
+select:hover, 
+select:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 163, 255, 0.2);
+  background: var(--bg-primary);  /* 懸浮時稍微變暗 */
+}
+
+/* 添加自定義下拉箭頭 */
+select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2300A3FF' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.kpi-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.kpi-box {
+  padding: 25px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kpi-box:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 25px rgba(0, 163, 255, 0.1);
+}
+
+.kpi-box:hover::before {
+  opacity: 1;
+}
+
+.chart-container {
+  margin-top: 30px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 30px rgba(0, 163, 255, 0.1);
+}
+
+h1, h2, h3, h4 {
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(0, 163, 255, 0.2);
+}
+
+.metric-value {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--accent-primary);
+  text-shadow: 0 0 10px rgba(0, 163, 255, 0.3);
+  margin: 10px 0;
+}
+
+.metric-title {
+  color: var(--text-secondary);
+  font-size: 1.1em;
+}
+
+canvas {
+  max-height: 400px;
+  width: 100% !important;
+  filter: drop-shadow(0 0 10px rgba(0, 163, 255, 0.1));
+}
+
+@media (max-width: 768px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+  .kpi-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>KOL 數據比較分析</h1>
+    
+    <div class="controls">
+      <div class="creator-selector">
+        <h3>創作者 A</h3>
+        <select id="platform-a" onchange="updateCreatorList('a')">
+          <option value="">選擇平台</option>
+          <option value="youtube">YouTube</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+        </select>
+        <select id="creator-a" onchange="updateData('a')">
+          <option value="">選擇創作者</option>
+        </select>
+      </div>
+      <div class="creator-selector">
+        <h3>創作者 B</h3>
+        <select id="platform-b" onchange="updateCreatorList('b')">
+          <option value="">選擇平台</option>
+          <option value="youtube">YouTube</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+        </select>
+        <select id="creator-b" onchange="updateData('b')">
+          <option value="">選擇創作者</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="comparison-container">
+      <div class="kpi-container">
+        <div class="kpi-box">
+          <h4>粉絲數 A</h4>
+          <div id="followers-a">-</div>
+        </div>
+        <div class="kpi-box">
+          <h4>總觀看數 A</h4>
+          <div id="views-a">-</div>
+        </div>
+        <div class="kpi-box">
+          <h4>互動率 A</h4>
+          <div id="engagement-a">-</div>
+        </div>
+      </div>
+      <div class="kpi-container">
+        <div class="kpi-box">
+          <h4>粉絲數 B</h4>
+          <div id="followers-b">-</div>
+        </div>
+        <div class="kpi-box">
+          <h4>總觀看數 B</h4>
+          <div id="views-b">-</div>
+        </div>
+        <div class="kpi-box">
+          <h4>互動率 B</h4>
+          <div id="engagement-b">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 原有影片觀看數比較圖表 -->
+    <div class="chart-container">
+      <canvas id="comparison-chart"></canvas>
+    </div>
+    <!-- 新增粉絲數比較圖表 -->
+    <div class="chart-container">
+      <canvas id="followers-chart"></canvas>
+    </div>
+    <!-- 新增互動數比較圖表（按讚與留言，獨立長條圖） -->
+    <div class="chart-container">
+      <canvas id="engagement-chart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let comparisonChart = null;
+    let followersChart = null;
+    let engagementChart = null;
+    let creatorDataA = null;
+    let creatorDataB = null;
+
+    async function updateCreatorList(suffix) {
+      const platformSelect = document.getElementById(`platform-${suffix}`);
+      const creatorSelect = document.getElementById(`creator-${suffix}`);
+      const platform = platformSelect.value;
+
+      if (!platform) {
+        creatorSelect.innerHTML = '<option value="">選擇創作者</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/platforms');
+        const data = await response.json();
+        const creators = data[platform] || [];
+
+        creatorSelect.innerHTML = `
+          <option value="">選擇創作者</option>
+          ${creators.map(creator => `<option value="${creator}">${creator}</option>`).join('')}
+        `;
+      } catch (error) {
+        console.error('獲取創作者列表失敗:', error);
+      }
+    }
+
+    async function updateData(suffix) {
+      const platform = document.getElementById(`platform-${suffix}`).value;
+      const creator = document.getElementById(`creator-${suffix}`).value;
+
+      if (!platform || !creator) return;
+
+      try {
+        const response = await fetch(`/api/stats?platform=${platform}&creator=${creator}`);
+        const data = await response.json();
+
+        if (suffix === 'a') {
+          creatorDataA = data;
+        } else {
+          creatorDataB = data;
+        }
+
+        updateKPIs(data, suffix);
+        // 當雙方數據皆取得後更新圖表
+        if (creatorDataA && creatorDataB) {
+          updateChart();             // 影片觀看數比較
+          updateAdditionalCharts();  // 新增粉絲數與互動數比較圖表
+        }
+      } catch (error) {
+        console.error('獲取數據失敗:', error);
+      }
+    }
+
+    function updateKPIs(data, suffix) {
+      const basicInfo = data.basic_info || {};
+      const videosData = data.videos_data || [];
+
+      document.getElementById(`followers-${suffix}`).textContent =
+        formatNumber(basicInfo.followers_count);
+
+      const totalViews = videosData.reduce((sum, video) =>
+        sum + parseInt(video.views || 0), 0);
+      document.getElementById(`views-${suffix}`).textContent =
+        formatNumber(totalViews);
+
+      const totalEngagement = videosData.reduce((sum, video) => {
+        const likes = parseInt(video.likes || 0);
+        const comments = parseInt(video.comments || 0);
+        return sum + likes + comments;
+      }, 0);
+
+      const engagementRate = totalViews > 0
+        ? ((totalEngagement / totalViews) * 100).toFixed(2) + '%'
+        : '0%';
+      document.getElementById(`engagement-${suffix}`).textContent = engagementRate;
+    }
+
+    function formatNumber(num) {
+      if (!num) return '0';
+      num = parseInt(num);
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    // 更新「影片觀看數比較」圖表（原有功能）
+    function updateChart() {
+      const ctx = document.getElementById('comparison-chart').getContext('2d');
+
+      if (comparisonChart) {
+        comparisonChart.destroy();
+      }
+
+      const videoViewsA = (creatorDataA.videos_data || []).map(v => parseInt(v.views || 0));
+      const videoViewsB = (creatorDataB.videos_data || []).map(v => parseInt(v.views || 0));
+      const maxLength = Math.max(videoViewsA.length, videoViewsB.length);
+      const labels = Array.from({ length: maxLength }, (_, i) => `影片 ${i + 1}`);
+
+      comparisonChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '創作者 A',
+              data: videoViewsA,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              fill: true
+            },
+            {
+              label: '創作者 B',
+              data: videoViewsB,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: '影片觀看數比較',
+              font: {
+                size: 28,
+                family: 'Poppins',
+                weight: 'bold'
+              },
+              color: '#efe9ee',
+              padding: 20
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatNumber(context.parsed.y);
+                }
+              },
+              bodyFont: {
+                size: 18
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => formatNumber(value)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 更新額外圖表（粉絲數與互動數比較）
+    function updateAdditionalCharts() {
+      updateFollowersChart();
+      updateEngagementChart();
+    }
+
+    // 計算並更新粉絲數比較的 Doughnut 圖
+    function updateFollowersChart() {
+      const ctx = document.getElementById('followers-chart').getContext('2d');
+
+      // 從 basic_info 取得粉絲數（預設為數字）
+      const followersA = parseInt(creatorDataA.basic_info.followers_count || 0);
+      const followersB = parseInt(creatorDataB.basic_info.followers_count || 0);
+
+      if (followersChart) {
+        followersChart.destroy();
+      }
+
+      followersChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['創作者 A', '創作者 B'],
+          datasets: [{
+            data: [followersA, followersB],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 99, 132, 0.7)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: '粉絲數比較',
+              font: {
+                size: 28,
+                family: 'Poppins',
+                weight: 'bold'
+              },
+              color: '#efe9ee',
+              padding: 20
+            },
+            datalabels: {
+              formatter: (value) => formatNumber(value)
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.label + ': ' + formatNumber(context.parsed);
+                }
+              },
+              bodyFont: {
+                size: 18
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 更新互動數比較圖表（按讚與留言，獨立長條圖）
+    function updateEngagementChart() {
+      const ctx = document.getElementById('engagement-chart').getContext('2d');
+
+      // 確保 creatorDataA 和 creatorDataB 存在
+      if (!creatorDataA || !creatorDataB) {
+        console.warn('Data for creators A or B is missing.');
+        return;
+      }
+
+      // 計算各創作者的總按讚數與留言數
+      const videosA = (creatorDataA.videos_data || []).filter(video => video);
+      const videosB = (creatorDataB.videos_data || []).filter(video => video);
+
+      const likesA = videosA.reduce((sum, video) => sum + (parseInt(video.likes || 0) || 0), 0);
+      const commentsA = videosA.reduce((sum, video) => sum + (parseInt(video.comments || 0) || 0), 0);
+      const likesB = videosB.reduce((sum, video) => sum + (parseInt(video.likes || 0) || 0), 0);
+      const commentsB = videosB.reduce((sum, video) => sum + (parseInt(video.comments || 0) || 0), 0);
+
+      if (engagementChart) {
+        engagementChart.destroy();
+      }
+
+      engagementChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['創作者 A', '創作者 B'],
+          datasets: [
+            {
+              label: '按讚數',
+              data: [likesA, likesB],
+              backgroundColor: 'rgba(54, 162, 235, 0.7)'
+            },
+            {
+              label: '留言數',
+              data: [commentsA, commentsB],
+              backgroundColor: 'rgba(255, 206, 86, 0.7)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: '互動數比較 (按讚與留言)',
+              font: {
+                size: 28,
+                family: 'Poppins',
+                weight: 'bold'
+              },
+              color: '#efe9ee',
+              padding: 20
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatNumber(context.parsed.y);
+                }
+              },
+              bodyFont: {
+                size: 18
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '創作者'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '數量'
+              },
+              ticks: {
+                callback: value => formatNumber(value)
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

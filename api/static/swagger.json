@@ -1,0 +1,170 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "KOL 數據分析 API",
+    "description": "提供多平台 KOL 數據分析和比較功能的 API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "本地開發服務器"
+    }
+  ],
+  "tags": [
+    {
+      "name": "平台數據",
+      "description": "獲取平台和創作者相關數據"
+    }
+  ],
+  "paths": {
+    "/api/platforms": {
+      "get": {
+        "tags": ["平台數據"],
+        "summary": "獲取所有平台的創作者列表",
+        "description": "返回所有支持平台的創作者清單",
+        "responses": {
+          "200": {
+            "description": "成功獲取平台創作者列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "youtube": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "tiktok": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "instagram": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "tags": ["平台數據"],
+        "summary": "獲取特定平台和創作者的統計數據",
+        "description": "根據平台和創作者名稱獲取詳細統計數據",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "description": "平台名稱 (youtube, tiktok, instagram)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["youtube", "tiktok", "instagram"]
+            }
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "創作者名稱",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功獲取統計數據",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "basic_info": {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "followers_count": {
+                          "type": "string"
+                        },
+                        "posts_count": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "videos_data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer"
+                          },
+                          "views": {
+                            "type": "string"
+                          },
+                          "likes": {
+                            "type": "string"
+                          },
+                          "comments": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "請求參數錯誤",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到數據",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} 
