@@ -9,7 +9,8 @@
 資料庫畫面:
 <img width="1960" height="708" alt="image" src="https://github.com/user-attachments/assets/ab6c6476-965a-4697-bf39-4702664c0ed9" />
 程式運行畫面:
-<img width="1960" height="708" alt="image" src="https://github.com/user-attachments/assets/3808f5c2-9b78-4ae4-9415-901cf6541945" />
+<img width="615" height="370" alt="image" src="https://github.com/user-attachments/assets/a23f5c15-aa76-4695-aa4a-161a87a5712b" />
+<img width="895" height="251" alt="image" src="https://github.com/user-attachments/assets/e5a10f85-8a4b-4f46-808c-a098db3fff9b" />
 前端畫面:
 <img width="1006" height="899" alt="image" src="https://github.com/user-attachments/assets/e84fb623-83eb-458f-ac78-c3936634bf06" />
 <img width="953" height="743" alt="image" src="https://github.com/user-attachments/assets/63d07899-f44b-4a2c-9faf-184cc2e8eec0" />
