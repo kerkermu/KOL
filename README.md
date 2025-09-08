@@ -6,3 +6,16 @@
 
 透過這些指標，專案將分析兩位 KOL 在不同平台的影響力與受眾互動情形，協助評估其整體社群表現，進而提供給品牌主、行銷人員作為合作參考依據。
 ![image](https://github.com/user-attachments/assets/a4363e10-6a88-4ff4-8b7f-142b783929ab)
+資料庫畫面:
+<img width="1960" height="708" alt="image" src="https://github.com/user-attachments/assets/ab6c6476-965a-4697-bf39-4702664c0ed9" />
+程式運行畫面:
+<img width="1960" height="708" alt="image" src="https://github.com/user-attachments/assets/3808f5c2-9b78-4ae4-9415-901cf6541945" />
+前端畫面:
+<img width="1006" height="899" alt="image" src="https://github.com/user-attachments/assets/e84fb623-83eb-458f-ac78-c3936634bf06" />
+<img width="953" height="743" alt="image" src="https://github.com/user-attachments/assets/63d07899-f44b-4a2c-9faf-184cc2e8eec0" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dcd55f46-9e88-4b82-84ce-6214ec1744d9" />
+
+
+
+
+
